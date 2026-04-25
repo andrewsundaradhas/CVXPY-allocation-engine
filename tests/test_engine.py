@@ -37,6 +37,10 @@ def test_run_allocation_with_ml_path():
     assert out["status"] in ("optimal", "optimal_inaccurate")
     assert out["volatility"] > 0
     assert len(out["mu_used"]) == len(tickers)
+    # Dashboard artifacts must be present so Streamlit doesn't re-download data.
+    assert "returns" in out and out["returns"].shape[1] == len(tickers)
+    assert "Sigma" in out and out["Sigma"].shape == (len(tickers), len(tickers))
+    assert "mu" in out and len(out["mu"]) == len(tickers)
 
 
 def test_run_allocation_without_ml_falls_back_to_historical_mean():

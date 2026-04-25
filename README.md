@@ -17,6 +17,7 @@ Layers:
 python -m venv .venv
 source .venv/bin/activate    # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+pip install -e .             # makes the `allocator` package importable for streamlit/uvicorn
 ```
 
 Verify CVXPY + CLARABEL:
@@ -29,6 +30,12 @@ python -c "import cvxpy; print(cvxpy.__version__); print(cvxpy.installed_solvers
 
 ```bash
 pytest
+```
+
+## Run the dashboard
+
+```bash
+streamlit run src/allocator/dashboard.py
 ```
 
 ## Run the API
@@ -53,4 +60,4 @@ curl -X POST localhost:8000/allocate -H 'Content-Type: application/json' \
 - [x] Phase 4 — CVXPY optimizer (mean-variance, min-variance, max-Sharpe, risk-parity)
 - [x] Phase 5 — engine orchestrator
 - [x] Phase 6a — FastAPI service (`/health`, `/allocate`)
-- [ ] Phase 6b — Streamlit dashboard
+- [x] Phase 6b — Streamlit dashboard (KPIs, equity curve, allocation donut, risk contribution, correlation, efficient frontier, holdings table)

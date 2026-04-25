@@ -52,4 +52,8 @@ def run_allocation(req: AllocationRequest) -> dict:
     result = solve_portfolio(mu, Sigma, cfg)
     result["tickers"] = list(req.tickers)
     result["mu_used"] = mu.tolist()
+    # Artifacts the dashboard needs for plotting (avoid re-downloading)
+    result["returns"] = rets
+    result["Sigma"] = Sigma
+    result["mu"] = mu
     return result
