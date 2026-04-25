@@ -31,12 +31,26 @@ python -c "import cvxpy; print(cvxpy.__version__); print(cvxpy.installed_solvers
 pytest
 ```
 
+## Run the API
+
+```bash
+uvicorn allocator.api:app --reload --port 8000
+```
+
+Then:
+
+```bash
+curl -X POST localhost:8000/allocate -H 'Content-Type: application/json' \
+  -d '{"tickers":["AAPL","MSFT","JPM","XOM","PG"],"objective":"mean_variance","risk_aversion":4}'
+```
+
 ## Status
 
 - [x] Phase 0 — environment
 - [x] Phase 1 — data layer (loader, returns)
 - [x] Phase 2 — covariance (Ledoit-Wolf) + features
 - [x] Phase 3 — ML expected returns + shrinkage blend
-- [ ] Phase 4 — CVXPY optimizer
-- [ ] Phase 5 — engine orchestrator
-- [ ] Phase 6 — FastAPI + Streamlit
+- [x] Phase 4 — CVXPY optimizer (mean-variance, min-variance, max-Sharpe, risk-parity)
+- [x] Phase 5 — engine orchestrator
+- [x] Phase 6a — FastAPI service (`/health`, `/allocate`)
+- [ ] Phase 6b — Streamlit dashboard
