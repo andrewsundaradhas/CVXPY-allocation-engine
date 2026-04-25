@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import py_compile, sys; [py_compile.compile\\(f, doraise=True\\) for f in ['src/allocator/__init__.py','src/allocator/config.py','src/allocator/data/loader.py','src/allocator/stats/returns.py','tests/test_data.py','tests/test_returns.py']]; print\\('syntax ok'\\)\")",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
