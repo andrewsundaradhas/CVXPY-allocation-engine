@@ -341,20 +341,23 @@ section[data-testid="stSidebar"] input[type="text"]:focus {
 .kpi-sub.up { color: var(--up); }
 .kpi-sub.down { color: var(--down); }
 
-/* === Card === */
-.card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent 30%), var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: var(--pad-card);
-  margin-bottom: var(--gap);
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-card);
-  transition: border-color .25s ease, box-shadow .25s ease;
+/* === Card ===
+   Two paths: (a) my custom HTML .card class (used inside main flow), and
+   (b) Streamlit's st.container(border=True) wrapper, which is what actually
+   holds chart + title in DOM. Both must look identical. */
+.card,
+[data-testid="stVerticalBlockBorderWrapper"] {
+  background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent 30%), var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  padding: var(--pad-card) !important;
+  margin-bottom: var(--gap) !important;
+  box-shadow: var(--shadow-card) !important;
+  transition: border-color .25s ease, box-shadow .25s ease !important;
   position: relative;
 }
-.card:hover { border-color: rgba(94,234,212,0.10); }
+.card:hover,
+[data-testid="stVerticalBlockBorderWrapper"]:hover { border-color: rgba(94,234,212,0.18) !important; }
 .card-title {
   font-size: 0.66rem; font-weight: 600; color: var(--text-muted);
   letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.55rem;
@@ -520,7 +523,7 @@ def chart_layout(height: int = 320, **overrides) -> dict:
     return base
 
 
-def render_topbar(status: str, n_assets: int, tickers: list[str] | None = None):
+def render_topbar(status: str, tickers: list[str] | None = None):
     pill_class = "ok" if status == "active" else "idle"
     pill_text = "Solver Active" if status == "active" else "Idle"
     tickers_html = ""
@@ -924,7 +927,7 @@ def main():
         inject_css(density=cfg["density"])
 
     if not cfg["run"] and "result" not in st.session_state:
-        render_topbar(status="idle", n_assets=len(cfg["tickers"]), tickers=cfg["tickers"])
+        render_topbar(status="idle", tickers=cfg["tickers"])
         render_empty_state()
         return
 
@@ -954,60 +957,60 @@ def main():
     Sigma   = st.session_state["Sigma"]
     mu      = st.session_state["mu"]
 
-    render_topbar(status="active", n_assets=len(result["tickers"]), tickers=result["tickers"])
+    render_topbar(status="active", tickers=result["tickers"])
     render_kpis(result)
 
     # Row 1: Equity curve (2) | Donut (1)
     c1, c2 = st.columns([2, 1], gap="small")
     with c1:
-        date_idx = returns.index
-        date_hint = f"{date_idx[0].date().isoformat()} → {date_idx[-1].date().isoformat()}"
-        st.markdown(
-            f'<div class="card"><div class="card-title"><span>Cumulative Performance — Optimized vs Equal-Weight</span><span class="hint">{date_hint}</span></div>',
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(render_equity_curve(result, returns), use_container_width=True, config={"displayModeBar": False})
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            date_idx = returns.index
+            date_hint = f"{date_idx[0].date().isoformat()} → {date_idx[-1].date().isoformat()}"
+            st.markdown(
+                f'<div class="card-title"><span>Cumulative Performance — Optimized vs Equal-Weight</span><span class="hint">{date_hint}</span></div>',
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(render_equity_curve(result, returns), use_container_width=True, config={"displayModeBar": False})
     with c2:
-        st.markdown(
-            '<div class="card"><div class="card-title"><span>Allocation</span><span class="hint">long-only</span></div>',
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(render_allocation_donut(result), use_container_width=True, config={"displayModeBar": False})
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown(
+                '<div class="card-title"><span>Allocation</span><span class="hint">long-only</span></div>',
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(render_allocation_donut(result), use_container_width=True, config={"displayModeBar": False})
 
     # Row 2: Risk Contribution | Correlation | Frontier
     c1, c2, c3 = st.columns(3, gap="small")
     with c1:
-        st.markdown(
-            '<div class="card"><div class="card-title"><span>Risk Contribution</span><span class="hint">marginal × weight</span></div>',
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(render_risk_contribution(result, Sigma), use_container_width=True, config={"displayModeBar": False})
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown(
+                '<div class="card-title"><span>Risk Contribution</span><span class="hint">marginal × weight</span></div>',
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(render_risk_contribution(result, Sigma), use_container_width=True, config={"displayModeBar": False})
     with c2:
-        st.markdown(
-            '<div class="card"><div class="card-title"><span>Correlation Matrix</span><span class="hint">ρ ∈ [−1, 1]</span></div>',
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(render_correlation(returns, result["tickers"]), use_container_width=True, config={"displayModeBar": False})
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown(
+                '<div class="card-title"><span>Correlation Matrix</span><span class="hint">ρ ∈ [−1, 1]</span></div>',
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(render_correlation(returns, result["tickers"]), use_container_width=True, config={"displayModeBar": False})
     with c3:
-        st.markdown(
-            '<div class="card"><div class="card-title"><span>Efficient Frontier</span><span class="hint">μ vs σ</span></div>',
-            unsafe_allow_html=True,
-        )
-        st.plotly_chart(render_efficient_frontier(mu, Sigma, result), use_container_width=True, config={"displayModeBar": False})
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown(
+                '<div class="card-title"><span>Efficient Frontier</span><span class="hint">μ vs σ</span></div>',
+                unsafe_allow_html=True,
+            )
+            st.plotly_chart(render_efficient_frontier(mu, Sigma, result), use_container_width=True, config={"displayModeBar": False})
 
     # Row 3: Holdings
     n_active = int(np.sum(np.array(result["weights"]) > 1e-4))
-    st.markdown(
-        f'<div class="card"><div class="card-title"><span>Holdings</span><span class="hint">sorted by weight · {n_active} active</span></div>',
-        unsafe_allow_html=True,
-    )
-    render_holdings_table(result, mu, Sigma)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown(
+            f'<div class="card-title"><span>Holdings</span><span class="hint">sorted by weight · {n_active} active</span></div>',
+            unsafe_allow_html=True,
+        )
+        render_holdings_table(result, mu, Sigma)
 
 
 if __name__ == "__main__":
