@@ -35,8 +35,8 @@ pytest
 
 - [x] Phase 0 — environment
 - [x] Phase 1 — data layer (loader, returns)
-- [ ] Phase 2 — covariance + features
-- [ ] Phase 3 — ML expected returns
+- [x] Phase 2 — covariance (Ledoit-Wolf) + features
+- [x] Phase 3 — ML expected returns + shrinkage blend
 - [ ] Phase 4 — CVXPY optimizer
 - [ ] Phase 5 — engine orchestrator
 - [ ] Phase 6 — FastAPI + Streamlit

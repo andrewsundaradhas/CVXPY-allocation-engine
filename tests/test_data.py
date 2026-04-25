@@ -38,4 +38,6 @@ def test_load_prices_round_trips_cache(tmp_path, monkeypatch):
     assert dl.call_count == 1
     assert list(first.columns) == tickers
     assert first.shape[0] > 0
-    pd.testing.assert_frame_equal(first, second)
+    # parquet round-trip drops DatetimeIndex frequency; compare values + index identity instead
+    assert first.equals(second)
+    assert list(first.index) == list(second.index)
